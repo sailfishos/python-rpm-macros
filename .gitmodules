@@ -1,0 +1,3 @@
+[submodule "python-rpm-macros"]
+	path = python-rpm-macros
+	url = https://git.sailfishos.org/mirror/python-rpm-macros.git
