@@ -1,5 +1,5 @@
 Name:           python-rpm-macros
-Version:        3.8
+Version:        3.11
 Release:        1
 Summary:        The common Python RPM macros
 
@@ -23,13 +23,6 @@ Summary:        RPM macros for building Python source packages
 %description -n python-srpm-macros
 RPM macros for building Python source packages.
 
-%package -n python2-rpm-macros
-Summary:        RPM macros for building Python 2 packages
-Requires:       python-srpm-macros
-
-%description -n python2-rpm-macros
-RPM macros for building Python 2 packages.
-
 %package -n python3-rpm-macros
 Summary:        RPM macros for building Python 3 packages
 Requires:       python-srpm-macros
@@ -47,17 +40,18 @@ RPM macros for building Python 3 packages.
 mkdir -p %{buildroot}%{_rpmmacrodir}
 # We don't package macros.pybytecompile and compileall2.py
 # as we are using RPM's version of pybytecompile
-install -m 644 macros.python macros.python-srpm macros.python2 macros.python3 \
+install -m 644 macros.python macros.python-srpm macros.python3 \
   %{buildroot}%{_rpmmacrodir}/
+
+mkdir -p %{buildroot}%{_rpmluadir}/fedora/srpm
+install -p -m 644 -t %{buildroot}%{_rpmluadir}/fedora/srpm python.lua
 
 %files
 %{_rpmmacrodir}/macros.python
 
 %files -n python-srpm-macros
 %{_rpmmacrodir}/macros.python-srpm
-
-%files -n python2-rpm-macros
-%{_rpmmacrodir}/macros.python2
+%{_rpmluadir}/fedora/srpm/python.lua
 
 %files -n python3-rpm-macros
 %{_rpmmacrodir}/macros.python3
