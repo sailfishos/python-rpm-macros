@@ -5,6 +5,8 @@ Summary:        The common Python RPM macros
 
 License:        MIT and Python
 Source0:        %{name}-%{version}.tar.gz
+Patch1:         0001-Use-meego-paths-in-scripts-and-some-comments.patch
+Patch2:         0002-brp-python-bytecompile-Ensure-reproducibility-of-inv.patch
 
 BuildArch:      noarch
 # For %%python3_pkgversion used in %%python_provide
@@ -46,12 +48,22 @@ install -m 644 macros.python macros.python-srpm macros.python3 \
 mkdir -p %{buildroot}%{_rpmluadir}/fedora/srpm
 install -p -m 644 -t %{buildroot}%{_rpmluadir}/fedora/srpm python.lua
 
+mkdir -p %{buildroot}%{_rpmconfigdir}/meego
+install -p -m 755 -t %{buildroot}%{_rpmconfigdir}/meego \
+  brp-fix-pyc-reproducibility \
+  brp-python-bytecompile \
+  brp-python-hardlink \
+  %{nil}
+
 %files
 %{_rpmmacrodir}/macros.python
 
 %files -n python-srpm-macros
 %{_rpmmacrodir}/macros.python-srpm
 %{_rpmluadir}/fedora/srpm/python.lua
+%{_rpmconfigdir}/meego/brp-fix-pyc-reproducibility
+%{_rpmconfigdir}/meego/brp-python-bytecompile
+%{_rpmconfigdir}/meego/brp-python-hardlink
 
 %files -n python3-rpm-macros
 %{_rpmmacrodir}/macros.python3

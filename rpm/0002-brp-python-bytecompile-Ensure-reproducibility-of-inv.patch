@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martin Kampas <martin.kampas@jolla.com>
+Date: Wed, 7 Sep 2022 18:30:02 +0200
+Subject: [PATCH] brp-python-bytecompile: Ensure reproducibility of
+ invalidation timestamp
+
+---
+ brp-python-bytecompile | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/brp-python-bytecompile b/brp-python-bytecompile
+index 0ae5a7f..525f0b3 100644
+--- a/brp-python-bytecompile
++++ b/brp-python-bytecompile
+@@ -129,6 +129,14 @@ fi
+ # Python 3.11+ no longer needs this: https://github.com/python/cpython/pull/27926 (but we support older Pythons as well)
+ export PYTHONHASHSEED=0
+ 
++# .pyc/.pyo files embed the time of modification of the source file. Ensure
++# build reproducibility by adjusting the modification time a reproducible way.
++if [ -n "$SOURCE_DATE_EPOCH" ]; then
++	echo "Updating modification time of .py files according to \$SOURCE_DATE_EPOCH"
++	find "$RPM_BUILD_ROOT" -name '*.py' -print0 \
++		|xargs --verbose --no-run-if-empty -0 touch --date=@"$SOURCE_DATE_EPOCH"
++fi
++
+ shopt -s nullglob
+ find "$RPM_BUILD_ROOT" -type d -print0|grep -z -E "/(usr|app)/lib(64)?/python[0-9]\.[0-9]+$" | while read -d "" python_libdir;
+ do

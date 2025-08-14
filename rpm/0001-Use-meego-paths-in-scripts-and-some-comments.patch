@@ -1,0 +1,194 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Matti Viljanen <matti.viljanen@jolla.com>
+Date: Thu, 14 Aug 2025 10:58:52 +0300
+Subject: [PATCH] Use meego paths in scripts and some comments
+
+---
+ brp-python-bytecompile           | 4 ++--
+ macros.pybytecompile             | 6 +++---
+ macros.python                    | 4 ++--
+ macros.python-srpm               | 8 ++++----
+ macros.python3                   | 4 ++--
+ tests/test_evals.py              | 8 ++++----
+ tests/test_import_all_modules.py | 2 +-
+ tests/tests.yml                  | 2 +-
+ 8 files changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/brp-python-bytecompile b/brp-python-bytecompile
+index 1f7c4cd..0ae5a7f 100644
+--- a/brp-python-bytecompile
++++ b/brp-python-bytecompile
+@@ -25,7 +25,7 @@ function python_clamp_source_mtime()
+     local python_binary=$2
+     local _=$3
+     local python_libdir="$4"
+-    PYTHONPATH=/usr/lib/rpm/redhat/ $python_binary -B -m clamp_source_mtime -q "$python_libdir"
++    PYTHONPATH=/usr/lib/rpm/meego/ $python_binary -B -m clamp_source_mtime -q "$python_libdir"
+ }
+ 
+ # This function now implements Python byte-compilation in three different ways:
+@@ -80,7 +80,7 @@ function python_bytecompile()
+         # -x and -e together implements the same functionality as the Filter class below
+         # -s strips $RPM_BUILD_ROOT from the path
+         # -p prepends the leading slash to the path to make it absolute
+-        PYTHONPATH=/usr/lib/rpm/redhat/ $python_binary -B -m $compileall_module $compileall_flags -o 0 -o 1 -q -f $exclude -s "$RPM_BUILD_ROOT" -p / --hardlink-dupes $invalidation_option -e "$RPM_BUILD_ROOT" "$python_libdir"
++        PYTHONPATH=/usr/lib/rpm/meego/ $python_binary -B -m $compileall_module $compileall_flags -o 0 -o 1 -q -f $exclude -s "$RPM_BUILD_ROOT" -p / --hardlink-dupes $invalidation_option -e "$RPM_BUILD_ROOT" "$python_libdir"
+ 
+     else
+ #
+diff --git a/macros.pybytecompile b/macros.pybytecompile
+index e5e5a47..45f3571 100644
+--- a/macros.pybytecompile
++++ b/macros.pybytecompile
+@@ -20,7 +20,7 @@
+ clamp_source_mtime () {\
+     python_binary="%{__env_unset_source_date_epoch_if_not_clamp_mtime} %1"\
+     bytecode_compilation_path="%2"\
+-    PYTHONPATH="%{_rpmconfigdir}/redhat" $python_binary -s -B -m clamp_source_mtime $bytecode_compilation_path \
++    PYTHONPATH="%{_rpmconfigdir}/meego" $python_binary -s -B -m clamp_source_mtime $bytecode_compilation_path \
+ }\
+ \
+ py2_byte_compile () {\
+@@ -35,12 +35,12 @@ py2_byte_compile () {\
+ py34_byte_compile () {\
+     python_binary="%{__env_unset_source_date_epoch_if_not_clamp_mtime} PYTHONHASHSEED=0 %1"\
+     bytecode_compilation_path="%2"\
+-    PYTHONPATH="%{_rpmconfigdir}/redhat" $python_binary -s -B -m compileall2 %{?_smp_mflags} -o 0 -o 1 -s $RPM_BUILD_ROOT -p / --hardlink-dupes $bytecode_compilation_path \
++    PYTHONPATH="%{_rpmconfigdir}/meego" $python_binary -s -B -m compileall2 %{?_smp_mflags} -o 0 -o 1 -s $RPM_BUILD_ROOT -p / --hardlink-dupes $bytecode_compilation_path \
+ }\
+ py37_byte_compile () {\
+     python_binary="%{__env_unset_source_date_epoch_if_not_clamp_mtime} PYTHONHASHSEED=0 %1"\
+     bytecode_compilation_path="%2"\
+-    PYTHONPATH="%{_rpmconfigdir}/redhat" $python_binary -s -B -m compileall2 %{?_smp_mflags} -o 0 -o 1 -s $RPM_BUILD_ROOT -p / --hardlink-dupes --invalidation-mode=timestamp $bytecode_compilation_path \
++    PYTHONPATH="%{_rpmconfigdir}/meego" $python_binary -s -B -m compileall2 %{?_smp_mflags} -o 0 -o 1 -s $RPM_BUILD_ROOT -p / --hardlink-dupes --invalidation-mode=timestamp $bytecode_compilation_path \
+ }\
+ \
+ py39_byte_compile () {\
+diff --git a/macros.python b/macros.python
+index b45c985..3a5585f 100644
+--- a/macros.python
++++ b/macros.python
+@@ -24,7 +24,7 @@
+   else
+     shebang_flags="-ka%{py_shebang_flags}"
+   fi
+-  %{__python} -B %{_rpmconfigdir}/redhat/pathfix.py -pni %{__python} $shebang_flags}
++  %{__python} -B %{_rpmconfigdir}/meego/pathfix.py -pni %{__python} $shebang_flags}
+ 
+ # Use the slashes after expand so that the command starts on the same line as
+ # the macro
+@@ -84,7 +84,7 @@
+   if rpm.expand("%{?py_shebang_flags}") ~= "" then
+     command = command .. "-%{py_shebang_flags}"
+   end
+-  command = command .. " %{_rpmconfigdir}/redhat/import_all_modules.py "
++  command = command .. " %{_rpmconfigdir}/meego/import_all_modules.py "
+   -- handle multiline arguments correctly, see https://bugzilla.redhat.com/2018809
+   local args=rpm.expand('%{?**}'):gsub("[%s\\\\]*%s+", " ")
+   print(command .. args)
+diff --git a/macros.python-srpm b/macros.python-srpm
+index 5e57102..1996191 100644
+--- a/macros.python-srpm
++++ b/macros.python-srpm
+@@ -78,11 +78,11 @@
+ %__env_unset_source_date_epoch_if_not_clamp_mtime %[0%{?clamp_mtime_to_source_date_epoch} == 0 ? "env -u SOURCE_DATE_EPOCH" : "env"]
+ 
+ ## The individual BRP scripts
+-%__brp_python_bytecompile %{__env_unset_source_date_epoch_if_not_clamp_mtime} %{_rpmconfigdir}/redhat/brp-python-bytecompile "" "%{?_python_bytecompile_errors_terminate_build}" "%{?_python_bytecompile_extra}" "%{?_smp_mflags}"
+-%__brp_fix_pyc_reproducibility %{_rpmconfigdir}/redhat/brp-fix-pyc-reproducibility
+-%__brp_python_hardlink %{_rpmconfigdir}/redhat/brp-python-hardlink
++%__brp_python_bytecompile %{__env_unset_source_date_epoch_if_not_clamp_mtime} %{_rpmconfigdir}/meego/brp-python-bytecompile "" "%{?_python_bytecompile_errors_terminate_build}" "%{?_python_bytecompile_extra}" "%{?_smp_mflags}"
++%__brp_fix_pyc_reproducibility %{_rpmconfigdir}/meego/brp-fix-pyc-reproducibility
++%__brp_python_hardlink %{_rpmconfigdir}/meego/brp-python-hardlink
+ 
+-## This macro is included in redhat-rpm-config's %%__os_install_post
++## This macro is included in meego-rpm-config's %%__os_install_post
+ # Note that the order matters:
+ #  1. brp-python-bytecompile can create (or replace) pyc files
+ #  2. brp-fix-pyc-reproducibility can modify the pyc files from above
+diff --git a/macros.python3 b/macros.python3
+index 6aa541b..3a32137 100644
+--- a/macros.python3
++++ b/macros.python3
+@@ -22,7 +22,7 @@
+   else
+     shebang_flags="-ka%{py3_shebang_flags}"
+   fi
+-  %{__python3} -B %{_rpmconfigdir}/redhat/pathfix.py -pni %{__python3} $shebang_flags}
++  %{__python3} -B %{_rpmconfigdir}/meego/pathfix.py -pni %{__python3} $shebang_flags}
+ 
+ # Use the slashes after expand so that the command starts on the same line as
+ # the macro
+@@ -82,7 +82,7 @@
+   if rpm.expand("%{?py3_shebang_flags}") ~= "" then
+     command = command .. "-%{py3_shebang_flags}"
+   end
+-  command = command .. " %{_rpmconfigdir}/redhat/import_all_modules.py "
++  command = command .. " %{_rpmconfigdir}/meego/import_all_modules.py "
+   -- handle multiline arguments correctly, see https://bugzilla.redhat.com/2018809
+   local args=rpm.expand('%{?**}'):gsub("[%s\\\\]*%s+", " ")
+   print(command .. args)
+diff --git a/tests/test_evals.py b/tests/test_evals.py
+index 96ac705..360a0b6 100644
+--- a/tests/test_evals.py
++++ b/tests/test_evals.py
+@@ -435,7 +435,7 @@ def test_pypi_source_explicit_tilde():
+ 
+ def test_py3_shebang_fix():
+     cmd = rpm_eval('%py3_shebang_fix arg1 arg2 arg3')[-1].strip()
+-    assert cmd == '/usr/bin/python3 -B /usr/lib/rpm/redhat/pathfix.py -pni /usr/bin/python3 $shebang_flags arg1 arg2 arg3'
++    assert cmd == '/usr/bin/python3 -B /usr/lib/rpm/meego/pathfix.py -pni /usr/bin/python3 $shebang_flags arg1 arg2 arg3'
+ 
+ 
+ def test_py3_shebang_fix_default_shebang_flags():
+@@ -484,7 +484,7 @@ def test_py3_shebang_fix_no_shebang_flags(flags):
+ 
+ def test_py_shebang_fix_custom_python():
+     cmd = rpm_eval('%py_shebang_fix arg1 arg2 arg3', __python='/usr/bin/pypy')[-1].strip()
+-    assert cmd == '/usr/bin/pypy -B /usr/lib/rpm/redhat/pathfix.py -pni /usr/bin/pypy $shebang_flags arg1 arg2 arg3'
++    assert cmd == '/usr/bin/pypy -B /usr/lib/rpm/meego/pathfix.py -pni /usr/bin/pypy $shebang_flags arg1 arg2 arg3'
+ 
+ 
+ def test_pycached_in_sitelib():
+@@ -855,7 +855,7 @@ def test_py3_check_import(args, expected_args, __python3, lib):
+         PYTHONPATH="${{PYTHONPATH:-BUILDROOT/usr/{lib}/python{x_y}/site-packages:BUILDROOT/usr/lib/python{x_y}/site-packages}}"
+         _PYTHONSITE="BUILDROOT/usr/{lib}/python{x_y}/site-packages:BUILDROOT/usr/lib/python{x_y}/site-packages"
+         PYTHONDONTWRITEBYTECODE=1
+-        {__python3 or '/usr/bin/python3'} -s{safe_path_flag(x_y)} RPMCONFIGDIR/redhat/import_all_modules.py {expected_args}
++        {__python3 or '/usr/bin/python3'} -s{safe_path_flag(x_y)} RPMCONFIGDIR/meego/import_all_modules.py {expected_args}
+         """)
+     assert lines == expected.splitlines()
+ 
+@@ -878,5 +878,5 @@ def test_py3_check_import_respects_shebang_flags(shebang_flags_value, expected_s
+     }
+     lines = rpm_eval('%py3_check_import sys', **macros)
+     # Compare the last line of the command, that's where lua part is evaluated
+-    expected = f'/usr/bin/python3 {expected_shebang_flags} RPMCONFIGDIR/redhat/import_all_modules.py sys'
++    expected = f'/usr/bin/python3 {expected_shebang_flags} RPMCONFIGDIR/meego/import_all_modules.py sys'
+     assert  lines[-1].strip() == expected
+diff --git a/tests/test_import_all_modules.py b/tests/test_import_all_modules.py
+index 71feeff..34558b7 100644
+--- a/tests/test_import_all_modules.py
++++ b/tests/test_import_all_modules.py
+@@ -113,7 +113,7 @@ def test_main_raises_error_when_no_modules_provided():
+ 
+ 
+ def test_import_all_modules_does_not_import():
+-    '''Ensure the files from /usr/lib/rpm/redhat cannot be imported and
++    '''Ensure the files from /usr/lib/rpm/meego cannot be imported and
+     checked for import'''
+ 
+     # We already imported it in this file once, make sure it's not imported
+diff --git a/tests/tests.yml b/tests/tests.yml
+index 4b8b2dd..4dc7834 100644
+--- a/tests/tests.yml
++++ b/tests/tests.yml
+@@ -15,7 +15,7 @@
+     tests:
+     - pytest:
+         dir: .
+-        run: PYTHONPATH=/usr/lib/rpm/redhat ALTERNATE_PYTHON_VERSION=3.6 pytest -v
++        run: PYTHONPATH=/usr/lib/rpm/meego ALTERNATE_PYTHON_VERSION=3.6 pytest -v
+     - manual_byte_compilation_clamp_mtime_off:
+         dir: .
+         run: rpmbuild --define 'dist .clamp0' --define 'clamp_mtime_to_source_date_epoch 0' -ba pythontest.spec
