@@ -53,6 +53,8 @@ install -p -m 755 -t %{buildroot}%{_rpmconfigdir}/meego \
   brp-fix-pyc-reproducibility \
   brp-python-bytecompile \
   brp-python-hardlink \
+  clamp_source_mtime.py \
+  compileall2.py \
   %{nil}
 
 %files
@@ -64,6 +66,8 @@ install -p -m 755 -t %{buildroot}%{_rpmconfigdir}/meego \
 %{_rpmconfigdir}/meego/brp-fix-pyc-reproducibility
 %{_rpmconfigdir}/meego/brp-python-bytecompile
 %{_rpmconfigdir}/meego/brp-python-hardlink
+%{_rpmconfigdir}/meego/clamp_source_mtime.py
+%{_rpmconfigdir}/meego/compileall2.py
 
 %files -n python3-rpm-macros
 %{_rpmmacrodir}/macros.python3
