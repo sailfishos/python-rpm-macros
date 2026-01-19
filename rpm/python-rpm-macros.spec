@@ -55,6 +55,7 @@ install -p -m 755 -t %{buildroot}%{_rpmconfigdir}/meego \
   brp-python-hardlink \
   clamp_source_mtime.py \
   compileall2.py \
+  import_all_modules.py \
   %{nil}
 
 %files
@@ -68,6 +69,7 @@ install -p -m 755 -t %{buildroot}%{_rpmconfigdir}/meego \
 %{_rpmconfigdir}/meego/brp-python-hardlink
 %{_rpmconfigdir}/meego/clamp_source_mtime.py
 %{_rpmconfigdir}/meego/compileall2.py
+%{_rpmconfigdir}/meego/import_all_modules.py
 
 %files -n python3-rpm-macros
 %{_rpmmacrodir}/macros.python3
